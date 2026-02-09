@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+<h2>Edit Task Deadline</h2>
+
+<form action="/edit_deadline/{{ task.id }}" method="post" class="deadline-form">
+
+    <div class="deadline-group">
+        <span class="icon">📅</span>
+        <input
+            type="date"
+            name="deadline"
+            value="{{ task.deadline }}"
+            required
+        >
+        <button type="submit">Save</button>
+    </div>
+
+</form>
+
+<a href="/" class="back-link">← Back to Tasks</a>
+
+<style>
+
+.deadline-form {
+    margin-top: 20px;
+}
+
+.deadline-group {
+    display: flex;
+    align-items: center;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 2px solid rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 0.75);
+}
+
+.deadline-group .icon {
+    padding: 0 14px;
+    font-size: 20px;
+    color: #4a90e2;
+    background: rgba(255, 255, 255, 0.6);
+    border-right: 1.5px solid rgba(0, 0, 0, 0.12);
+}
+
+.deadline-group input {
+    border: none;
+    padding: 12px 14px;
+    font-size: 15px;
+    outline: none;
+    background: transparent;
+    flex: 1;
+}
+
+/* button */
+.deadline-group button {
+    border-radius: 0;
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.back-link {
+    display: block;
+    margin-top: 18px;
+    text-align: center;
+}
+</style>
+
+{% endblock %}

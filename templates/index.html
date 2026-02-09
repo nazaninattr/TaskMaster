@@ -1,0 +1,142 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+<div class="app">
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar">
+        <h3 class="logo">TaskMaster</h3>
+
+        <!-- MAIN TABS -->
+        <nav class="tabs">
+            <a href="/" class="{% if active=='inbox' %}active{% endif %}">📥 Inbox</a>
+            <a href="/today" class="{% if active=='today' %}active{% endif %}">📅 Today</a>
+            <a href="/upcoming" class="{% if active=='upcoming' %}active{% endif %}">⏳ Upcoming</a>
+            <a href="/late" class="{% if active=='late' %}active{% endif %}">⚠ Late</a>
+        </nav>
+
+        <hr>
+
+        <!-- CATEGORIES -->
+        <p class="section-title">Categories</p>
+
+        <div class="categories">
+            <a href="/category/Personal"
+               class="{% if current_category=='Personal' %}active{% endif %}">
+               🏠 Personal
+            </a>
+
+            <a href="/category/Work"
+               class="{% if current_category=='Work' %}active{% endif %}">
+               💼 Work
+            </a>
+
+            <a href="/category/School"
+               class="{% if current_category=='School' %}active{% endif %}">
+               🎓 School
+            </a>
+
+            <a href="/category/Urgent"
+               class="{% if current_category=='Urgent' %}active{% endif %}">
+               🔥 Urgent
+            </a>
+
+            <a href="/category/Others"
+               class="{% if current_category=='Others' %}active{% endif %}">
+               📦 Others
+            </a>
+        </div>
+
+        <div class="logout-box">
+            <a href="/logout">🚪 Logout</a>
+        </div>
+    </aside>
+
+
+
+    <!-- ================= MAIN ================= -->
+    <main class="content">
+
+        <!-- TITLE -->
+        <h2>
+            {% if active == "category" %}
+                {{ current_category }}
+            {% elif active == "today" %}
+                Today
+            {% elif active == "late" %}
+                Late
+            {% elif active == "upcoming" %}
+                Upcoming
+            {% else %}
+                Inbox
+            {% endif %}
+        </h2>
+
+
+        <!-- ADD TASK -->
+        <form action="/add" method="post" class="add-form">
+            <input name="task" placeholder="New task" required>
+
+            <select name="category">
+                <option value="Personal" selected>Personal</option>
+                <option value="Work">Work</option>
+                <option value="School">School</option>
+                <option value="Urgent">Urgent</option>
+                <option value="Others">Others</option>
+            </select>
+
+            <input type="date" name="deadline">
+            <button type="submit">Add</button>
+        </form>
+
+
+
+        <!-- TASK LIST -->
+        <ul class="task-list">
+        {% for task in tasks %}
+            <li class="task priority-{{ task.priority }} {{ task.status }}">
+
+                <!-- LEFT -->
+                <div class="left">
+
+                    {% if not task.completed %}
+                        <a href="/complete/{{ task.id }}" class="check">⭕</a>
+                    {% else %}
+                        <a href="/undo/{{ task.id }}" class="check">✅</a>
+                    {% endif %}
+
+                    <div class="task-text">
+                        <span class="{% if task.completed %}done{% endif %}">
+                            {{ task.task }}
+                        </span>
+
+                        {% if task.category %}
+                            <small>({{ task.category }})</small>
+                        {% endif %}
+
+                        {% if task.deadline %}
+                            <small>• {{ task.deadline }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+
+
+                <!-- RIGHT -->
+                <div class="actions">
+                    <a href="/set_priority/{{ task.id }}/2">🔴</a>
+                    <a href="/set_priority/{{ task.id }}/1">🟡</a>
+                    <a href="/set_priority/{{ task.id }}/0">⚪</a>
+                    <a href="/edit_deadline/{{ task.id }}">📅</a>
+                    <a href="/delete/{{ task.id }}">❌</a>
+                </div>
+
+            </li>
+        {% endfor %}
+        </ul>
+
+    </main>
+
+</div>
+
+{% endblock %}
