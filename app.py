@@ -4,7 +4,7 @@ from flask_session import Session
 import sqlite3
 from datetime import date, datetime
 from flask import jsonify
-import requests
+# import requests
 
 TOKEN = "8385224522:AAFKdjWPA9PeuVyZDcr9ElAS_fDu1HqcOqk"
 
@@ -303,6 +303,7 @@ def category(name):
 # ================= TELEGRAM =================
 @app.route(f"/{TOKEN}", methods=["POST"])
 def telegram_webhook():
+    print("TELEGRAM HIT")
     data = request.get_json()
 
     message = data.get("message")
@@ -310,14 +311,22 @@ def telegram_webhook():
         return "ok"
 
     text = message.get("text")
-    user_id = 1   
+    chat_id = message["chat"]["id"]
+
+    user_id = 1
 
     db = get_db()
     db.execute(
         "INSERT INTO tasks (user_id, task, category) VALUES (?, ?, ?)",
-        (user_id, text, "Others")
+        (user_id, text, "Telegram")
     )
     db.commit()
+
+    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+    requests.post(url, json={
+        "chat_id": chat_id,
+        "text": "✅ Task added!"
+    })
 
     return "ok"
 
