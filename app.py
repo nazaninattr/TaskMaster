@@ -304,31 +304,24 @@ def category(name):
 @app.route(f"/{TOKEN}", methods=["POST"])
 def telegram_webhook():
     print("TELEGRAM HIT")
-    data = request.get_json()
 
+    data = request.get_json()
     message = data.get("message")
+
     if not message:
         return "ok"
 
     text = message.get("text")
-    chat_id = message["chat"]["id"]
-
-    user_id = 1
-
+    
     db = get_db()
     db.execute(
         "INSERT INTO tasks (user_id, task, category) VALUES (?, ?, ?)",
-        (user_id, text, "Telegram")
+        (1, text, "Others")
     )
     db.commit()
 
-    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-    requests.post(url, json={
-        "chat_id": chat_id,
-        "text": "✅ Task added!"
-    })
-
     return "ok"
+
 
 
 
