@@ -311,17 +311,33 @@ def telegram_webhook():
     if not message:
         return "ok"
 
+    chat_id = message["chat"]["id"]
+    print("CHAT ID:", chat_id)
+
     text = message.get("text")
-    
+
     db = get_db()
     db.execute(
         "INSERT INTO tasks (user_id, task, category) VALUES (?, ?, ?)",
-        (1, text, "Others")
+        (1, text, "Others")   # فعلاً میره برای یوزر 1
     )
     db.commit()
 
+    print("TASK SAVED:", text)
+
     return "ok"
 
+
+
+
+
+@app.route("/resetdb")
+def resetdb():
+    db = get_db()
+    db.execute("DELETE FROM tasks")
+    db.execute("DELETE FROM users")
+    db.commit()
+    return "Database cleared!"
 
 
 
