@@ -331,13 +331,13 @@ def telegram_webhook():
 
 
 
-@app.route("/resetdb")
-def resetdb():
-    db = get_db()
-    db.execute("DELETE FROM tasks")
-    db.execute("DELETE FROM users")
-    db.commit()
-    return "Database cleared!"
+# @app.route("/resetdb")
+# def resetdb():
+#     db = get_db()
+#     db.execute("DELETE FROM tasks")
+#     db.execute("DELETE FROM users")
+#     db.commit()
+#     return "Database cleared!"
 
 
 
