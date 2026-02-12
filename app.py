@@ -318,6 +318,37 @@ def telegram_webhook():
 
     db = get_db()
 
+
+    # ================= CONNECT =================
+    if text.startswith("/connect"):
+        parts = text.split()
+
+        if len(parts) != 2:
+            return "ok"
+
+        code = parts[1]
+
+        row = db.execute(
+            "SELECT user_id FROM connect_codes WHERE code = ?",
+            (code,)
+        ).fetchone()
+
+        if not row:
+            print("Invalid code")
+            return "ok"
+
+        db.execute(
+            "UPDATE users SET telegram_id = ? WHERE id = ?",
+            (chat_id, row["user_id"])
+        )
+
+        db.execute("DELETE FROM connect_codes WHERE code = ?", (code,))
+        db.commit()
+
+        print("CONNECTED:", row["user_id"])
+        return "ok"
+
+    # ================= ADD TASK =================
     user = db.execute(
         "SELECT id FROM users WHERE telegram_id = ?",
         (chat_id,)
@@ -338,6 +369,7 @@ def telegram_webhook():
     return "ok"
 
 
+
 # ================= TELEGRAM =================
 @app.route("/telegram")
 def telegram_connect():
@@ -354,16 +386,16 @@ def telegram_connect():
     return f"Send this to the bot:\n/connect {code}"
 
 
+# ================= RESET DB =================
+# @app.route("/resetdb")
+# def resetdb():
+#     db = get_db()
+#     db.execute("DELETE FROM tasks")
+#     db.execute("DELETE FROM users")
+#     db.commit()
+#     return "Database cleared!"
 
-@app.route("/resetdb")
-def resetdb():
-    db = get_db()
-    db.execute("DELETE FROM tasks")
-    db.execute("DELETE FROM users")
-    db.commit()
-    return "Database cleared!"
 
 
-
-if __name__ == "__main__":
-    app.run(debug=True)
+# if __name__ == "__main__":
+#     app.run(debug=True)
