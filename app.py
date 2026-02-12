@@ -4,6 +4,8 @@ from flask_session import Session
 import sqlite3
 from datetime import date, datetime
 from flask import jsonify
+import random
+import string
 # import requests
 
 TOKEN = "8385224522:AAFKdjWPA9PeuVyZDcr9ElAS_fDu1HqcOqk"
@@ -300,7 +302,7 @@ def category(name):
         current_category=name
     )
 
-# ================= TELEGRAM =================
+# ================= WEBHOOK =================
 @app.route(f"/{TOKEN}", methods=["POST"])
 def telegram_webhook():
     print("TELEGRAM HIT")
@@ -336,17 +338,30 @@ def telegram_webhook():
     return "ok"
 
 
+# ================= TELEGRAM =================
+@app.route("/telegram")
+def telegram_connect():
+    if "user_id" not in session:
+        return redirect("/login")
+
+    code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
+
+    db = get_db()
+    db.execute("INSERT INTO connect_codes (code, user_id) VALUES (?, ?)",
+               (code, session["user_id"]))
+    db.commit()
+
+    return f"Send this to the bot:\n/connect {code}"
 
 
 
-
-# @app.route("/resetdb")
-# def resetdb():
-#     db = get_db()
-#     db.execute("DELETE FROM tasks")
-#     db.execute("DELETE FROM users")
-#     db.commit()
-#     return "Database cleared!"
+@app.route("/resetdb")
+def resetdb():
+    db = get_db()
+    db.execute("DELETE FROM tasks")
+    db.execute("DELETE FROM users")
+    db.commit()
+    return "Database cleared!"
 
 
 
