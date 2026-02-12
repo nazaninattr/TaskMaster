@@ -311,21 +311,30 @@ def telegram_webhook():
     if not message:
         return "ok"
 
-    chat_id = message["chat"]["id"]
-    print("CHAT ID:", chat_id)
-
     text = message.get("text")
+    chat_id = str(message["chat"]["id"])
 
     db = get_db()
+
+    user = db.execute(
+        "SELECT id FROM users WHERE telegram_id = ?",
+        (chat_id,)
+    ).fetchone()
+
+    if not user:
+        print("User not connected")
+        return "ok"
+
     db.execute(
         "INSERT INTO tasks (user_id, task, category) VALUES (?, ?, ?)",
-        (1, text, "Others")   # فعلاً میره برای یوزر 1
+        (user["id"], text, "Others")
     )
     db.commit()
 
-    print("TASK SAVED:", text)
+    print("TASK ADDED FOR USER:", user["id"])
 
     return "ok"
+
 
 
 
