@@ -390,6 +390,16 @@ def telegram_connect():
 
     return f"Send this to the bot:\n/connect {code}"
 
+# ================= ADMIN =================
+@app.route("/admin")
+def admin():
+    db = get_db()
+
+    users = db.execute("SELECT id, username, telegram_id FROM users").fetchall()
+    tasks = db.execute("SELECT id, user_id, task, category, completed FROM tasks").fetchall()
+
+    return render_template("admin.html", users=users, tasks=tasks)
+
 
 # ================= RESET DB =================
 # @app.route("/resetdb")

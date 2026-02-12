@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel</title>
+    <style>
+        body { font-family: Arial; padding: 30px; }
+        table { border-collapse: collapse; margin-bottom: 40px; width: 100%; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background: #f4f4f4; }
+        h2 { margin-top: 40px; }
+    </style>
+</head>
+<body>
+
+<h1>Admin Panel</h1>
+
+<h2>Users</h2>
+<table>
+<tr>
+    <th>ID</th>
+    <th>Username</th>
+    <th>Telegram ID</th>
+</tr>
+
+{% for u in users %}
+<tr>
+    <td>{{ u.id }}</td>
+    <td>{{ u.username }}</td>
+    <td>{{ u.telegram_id }}</td>
+</tr>
+{% endfor %}
+</table>
+
+
+<h2>Tasks</h2>
+<table>
+<tr>
+    <th>ID</th>
+    <th>User ID</th>
+    <th>Task</th>
+    <th>Category</th>
+    <th>Completed</th>
+</tr>
+
+{% for t in tasks %}
+<tr>
+    <td>{{ t.id }}</td>
+    <td>{{ t.user_id }}</td>
+    <td>{{ t.task }}</td>
+    <td>{{ t.category }}</td>
+    <td>{{ t.completed }}</td>
+</tr>
+{% endfor %}
+</table>
+
+</body>
+</html>
