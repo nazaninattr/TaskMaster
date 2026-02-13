@@ -252,8 +252,17 @@ body {
     gap: 8px;
 }
 
-.logout-box a {
-    display: block;
+
+
+.nav-item {
     padding: 9px 12px;
     border-radius: 8px;
+    text-decoration: none;
+    color: #333;
+    transition: 0.2s;
+}
+
+.nav-item:hover {
+    background: #e8f0ff;
+    color: #2b63ff;
 }
