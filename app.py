@@ -336,7 +336,7 @@ def category(name):
     )
 
 
-# ================= WEBHOOK =================
+# ================= TELEGRAM-WEBHOOK =================
 @app.route(f"/{TOKEN}", methods=["POST"])
 def telegram_webhook():
     print("TELEGRAM HIT")
@@ -454,7 +454,7 @@ def bale_webhook():
         return "ok"
 
     chat_id = str(message["chat"]["id"])
-    text = message.get("text")  # اگر متن نبود، None می‌مونه
+    text = message.get("text")
 
     db = get_db()
 
@@ -488,7 +488,6 @@ def bale_webhook():
         return "ok"
 
     # ========= ADD TASK =========
-    # فقط اگر متن واقعی وجود داشته باشه
     if not text or text.strip() == "":
         print("Empty message, not adding task")
         return "ok"
