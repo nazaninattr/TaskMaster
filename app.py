@@ -28,6 +28,27 @@ def get_db():
     return conn
 
 
+# ================= DB INIT =================
+def init_db():
+    db = get_db()
+
+    try:
+        db.execute("ALTER TABLE users ADD COLUMN telegram_id TEXT")
+    except:
+        pass
+
+    db.execute("""
+        CREATE TABLE IF NOT EXISTS connect_codes (
+            code TEXT PRIMARY KEY,
+            user_id INTEGER
+        )
+    """)
+
+    db.commit()
+
+init_db()
+
+
 
 # ================= HOME =================
 @app.route("/")
@@ -307,28 +328,31 @@ def category(name):
         current_category=name
     )
 
+
 # ================= WEBHOOK =================
 @app.route(f"/{TOKEN}", methods=["POST"])
 def telegram_webhook():
     print("TELEGRAM HIT")
 
     data = request.get_json()
-    message = data.get("message")
+    if not data:
+        return "ok"
 
+    message = data.get("message")
     if not message:
         return "ok"
 
-    text = message.get("text")
+    text = message.get("text", "")
     chat_id = str(message["chat"]["id"])
 
     db = get_db()
 
-
-    # ================= CONNECT =================
+    # ========= CONNECT =========
     if text.startswith("/connect"):
         parts = text.split()
 
         if len(parts) != 2:
+            print("Wrong connect format")
             return "ok"
 
         code = parts[1]
@@ -350,10 +374,10 @@ def telegram_webhook():
         db.execute("DELETE FROM connect_codes WHERE code = ?", (code,))
         db.commit()
 
-        print("CONNECTED:", row["user_id"])
+        print("CONNECTED USER:", row["user_id"])
         return "ok"
 
-    # ================= ADD TASK =================
+    # ========= ADD TASK =========
     user = db.execute(
         "SELECT id FROM users WHERE telegram_id = ?",
         (chat_id,)
@@ -365,17 +389,15 @@ def telegram_webhook():
 
     db.execute(
         "INSERT INTO tasks (user_id, task, category) VALUES (?, ?, ?)",
-        (user["id"], text, "Others")
+        (user["id"], text, "Telegram")
     )
     db.commit()
 
-    print("TASK ADDED FOR USER:", user["id"])
-
+    print("TASK ADDED FOR:", user["id"])
     return "ok"
 
 
-
-# ================= TELEGRAM =================
+# ================= TELEGRAM CONNECT =================
 @app.route("/telegram")
 def telegram_connect():
     if "user_id" not in session:
@@ -384,11 +406,19 @@ def telegram_connect():
     code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
 
     db = get_db()
-    db.execute("INSERT INTO connect_codes (code, user_id) VALUES (?, ?)",
-               (code, session["user_id"]))
+    db.execute(
+        "INSERT INTO connect_codes (code, user_id) VALUES (?, ?)",
+        (code, session["user_id"])
+    )
     db.commit()
 
-    return f"Send this to the bot:\n/connect {code}"
+    return f"""
+    <h2>Connect Telegram</h2>
+    <p>Send this command to the bot:</p>
+    <b>/connect {code}</b>
+    """
+
+
 
 # ================= ADMIN =================
 @app.route("/admin")
