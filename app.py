@@ -10,6 +10,7 @@ import os
 # import requests
 
 TOKEN = "8385224522:AAFKdjWPA9PeuVyZDcr9ElAS_fDu1HqcOqk"
+BALE_TOKEN = "1871211884:tC5owxjgW2w7hM6YQbpAANHP33NLBapipWg"
 
 
 app = Flask(__name__)
@@ -34,8 +35,14 @@ def init_db():
 
     try:
         db.execute("ALTER TABLE users ADD COLUMN telegram_id TEXT")
-    except:
+    except Exception:
         pass
+
+    try:
+        db.execute("ALTER TABLE users ADD COLUMN bale_id TEXT")
+    except Exception:
+        pass
+
 
     db.execute("""
         CREATE TABLE IF NOT EXISTS connect_codes (
@@ -429,6 +436,103 @@ def admin():
     tasks = db.execute("SELECT id, user_id, task, category, completed FROM tasks").fetchall()
 
     return render_template("admin.html", users=users, tasks=tasks)
+
+
+
+# ================= BALE-WEBHOOK =================
+@app.route(f"/bale/{BALE_TOKEN}", methods=["POST"])
+def bale_webhook():
+    print("BALE HIT")
+
+    data = request.get_json()
+    if not data:
+        return "ok"
+
+    message = data.get("message")
+    if not message:
+        print("No message in payload")
+        return "ok"
+
+    chat_id = str(message["chat"]["id"])
+    text = message.get("text")  # اگر متن نبود، None می‌مونه
+
+    db = get_db()
+
+    # ========= CONNECT =========
+    if text and text.startswith("/connect"):
+        parts = text.split()
+
+        if len(parts) != 2:
+            print("Wrong /connect format")
+            return "ok"
+
+        code = parts[1]
+
+        row = db.execute(
+            "SELECT user_id FROM connect_codes WHERE code = ?",
+            (code,)
+        ).fetchone()
+
+        if not row:
+            print("Invalid connect code:", code)
+            return "ok"
+
+        db.execute(
+            "UPDATE users SET bale_id = ? WHERE id = ?",
+            (chat_id, row["user_id"])
+        )
+        db.execute("DELETE FROM connect_codes WHERE code = ?", (code,))
+        db.commit()
+
+        print("BALE CONNECTED USER:", row["user_id"])
+        return "ok"
+
+    # ========= ADD TASK =========
+    # فقط اگر متن واقعی وجود داشته باشه
+    if not text or text.strip() == "":
+        print("Empty message, not adding task")
+        return "ok"
+
+    user = db.execute(
+        "SELECT id FROM users WHERE bale_id = ?",
+        (chat_id,)
+    ).fetchone()
+
+    if not user:
+        print("User not connected:", chat_id)
+        return "ok"
+
+    db.execute(
+        "INSERT INTO tasks (user_id, task, category) VALUES (?, ?, ?)",
+        (user["id"], text, "Bale")
+    )
+    db.commit()
+
+    print("TASK ADDED FOR BALE USER:", user["id"], "|", text)
+    return "ok"
+
+
+# ================= BALE CONNECT =================
+@app.route("/bale")
+def bale_connect():
+    if "user_id" not in session:
+        return redirect("/login")
+
+    code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
+
+    db = get_db()
+    db.execute("DELETE FROM connect_codes WHERE user_id = ?", (session["user_id"],))
+    db.execute(
+        "INSERT INTO connect_codes (code, user_id) VALUES (?, ?)",
+        (code, session["user_id"])
+    )
+    db.commit()
+
+    return f"""
+    <h2>Connect Bale</h2>
+    <p>Send this command to the Bale bot:</p>
+    <b>/connect {code}</b>
+    """
 
 
 # ================= RESET DB =================
