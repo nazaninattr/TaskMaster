@@ -60,8 +60,9 @@ body {
 .section-title {
     font-size: 12px;
     color: #888;
-    margin: 10px 0 6px;
+    margin: 6px 0 4px;
 }
+
 
 .categories span {
     display: block;
@@ -70,8 +71,10 @@ body {
     color: #555;
 }
 
-.logout-box {
-    margin-top: auto;
+.logout-box a {
+    display: block;
+    padding: 9px 12px;
+    border-radius: 8px;
 }
 
 
@@ -216,8 +219,8 @@ body {
 .categories {
     display: flex;
     flex-direction: column;
-    gap: 10px;          /* فاصله بین آیتم‌ها */
-    margin-top: 6px;
+    gap: 8px;
+    margin-top: 0;
 }
 
 .categories a {
@@ -241,15 +244,16 @@ body {
     font-weight: 600;
 }
 
-.telegram-btn {
-    background: #2AABEE;
-    color: white;
-    padding: 8px 14px;
-    border-radius: 6px;
-    text-decoration: none;
-    margin-left: 10px;
+/* ================= BOTTOM LINK ================= */
+.bottom-links {
+    margin-top: auto;    
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
-.telegram-btn:hover {
-    opacity: 0.9;
+.logout-box a {
+    display: block;
+    padding: 9px 12px;
+    border-radius: 8px;
 }
