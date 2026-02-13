@@ -12,6 +12,9 @@ import os
 TOKEN = "8385224522:AAFKdjWPA9PeuVyZDcr9ElAS_fDu1HqcOqk"
 BALE_TOKEN = "1871211884:tC5owxjgW2w7hM6YQbpAANHP33NLBapipWg"
 
+@app.route("/health")
+def health():
+    return "ok"
 
 app = Flask(__name__)
 app.config["SESSION_PERMANENT"] = False
