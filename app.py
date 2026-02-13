@@ -12,9 +12,7 @@ import os
 TOKEN = "8385224522:AAFKdjWPA9PeuVyZDcr9ElAS_fDu1HqcOqk"
 BALE_TOKEN = "1871211884:tC5owxjgW2w7hM6YQbpAANHP33NLBapipWg"
 
-@app.route("/health")
-def health():
-    return "ok"
+
 
 app = Flask(__name__)
 app.config["SESSION_PERMANENT"] = False
@@ -554,3 +552,7 @@ def bale_connect():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
+@app.route("/health")
+def health():
+    return "ok"
